@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cake</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #1d1c30;
+            font-family: Arial, Helvetica, sans-serif;
+            color: white;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 440px;
+            max-width: 90%;
+            background: #189BCC;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            margin: 15px 0 25px;
+            text-align: center;
+            font-size: 40px;
+            color: white;
+        }
+
+        .items {
+            margin: 0 auto 25px;
+            width: fit-content;
+        }
+
+        .item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 12px 0;
+            font-size: 20px;
+        }
+
+        .item input[type="checkbox"] {
+            width: 17px;
+            height: 17px;
+            cursor: pointer;
+        }
+
+        button {
+            display: block;
+            margin: 25px auto 35px;
+            padding: 12px 14px;
+            border: none;
+            border-radius: 7px;
+            background: #000000;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #000000;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            color: #ffffff;
+            font-size: 20px;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .receipt {
+            display: none;
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f8f8;
+            color: #222;
+            border-radius: 8px;
+        }
+
+        .receipt h2 {
+            text-align: center;
+            margin-top: 0;
+        }
+
+        .receipt-line {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+
+        .total {
+            border-top: 1px solid #aaa;
+            margin-top: 15px;
+            padding-top: 15px;
+            font-weight: bold;
+        }
+
+        .error {
+            color: #785757;
+            text-align: center;
+            display: none;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
+
+            .item {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Cake</h1>
+
+        <div class="items">
+
+            <label class="item">
+                <input type="checkbox" value="250" data-name="Item 1">
+                <span>Strawberry cake - ₱250</span>
+            </label>
+
+            <label class="item">
+                <input type="checkbox" value="200" data-name="Item 2">
+                <span>Chocolate cake - ₱200</span>
+            </label>
+
+            <label class="item">
+                <input type="checkbox" value="190" data-name="Item 3">
+                <span>Vanilla cake - ₱190</span>
+            </label>
+
+            <label class="item">
+                <input type="checkbox" value="250" data-name="Item 4">
+                <span>Red velvet cake - ₱250</span>
+            </label>
+
+            <label class="item">
+                <input type="checkbox" value="200" data-name="Item 5">
+                <span>Carrot cake - ₱200</span>
+            </label>
+
+        </div>
+
+        <p class="error" id="error">
+            Please select an item
+        </p>
+
+        <button onclick="generateReceipt()">
+          Receipt
+        </button>
+
+        <a class="back" href="javascript:history.back()">
+            ← Back
+        </a>
+
+        <div class="receipt" id="receipt">
+            <h2>Receipt</h2>
+
+            <div id="selectedItems"></div>
+
+            <div class="receipt-line">
+                <span>Subtotal:</span>
+                <span id="subtotal">₱0.00</span>
+            </div>
+
+            <div class="receipt-line">
+                <span>Tax (12%):</span>
+                <span id="tax">₱0.00</span>
+            </div>
+
+            <div class="receipt-line total">
+                <span>Total:</span>
+                <span id="total">₱0.00</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function generateReceipt() {
+
+            const checkboxes = document.querySelectorAll(
+                'input[type="checkbox"]'
+            );
+
+            const selectedItems = document.getElementById("selectedItems");
+            const receipt = document.getElementById("receipt");
+            const error = document.getElementById("error");
+
+            let subtotal = 0;
+            let selected = [];
+
+            // Clear previous receipt items
+            selectedItems.innerHTML = "";
+
+            // Check selected items
+            checkboxes.forEach(function (box) {
+
+                if (box.checked) {
+
+                    const name = box.dataset.name;
+                    const price = Number(box.value);
+
+                    subtotal += price;
+
+                    selected.push({
+                        name: name,
+                        price: price
+                    });
+                }
+            });
+
+        
+            if (selected.length === 0) {
+                error.style.display = "block";
+                receipt.style.display = "none";
+                return;
+            }
+
+            error.style.display = "none";
+
+         
+            selected.forEach(function (item) {
+
+                const line = document.createElement("div");
+
+                line.className = "receipt-line";
+
+                line.innerHTML = `
+                    <span>${item.name}</span>
+                    <span>₱${item.price.toFixed(2)}</span>
+                `;
+
+                selectedItems.appendChild(line);
+            });
+
+            const tax = subtotal * 0.12;
+
+          
+            const total = subtotal + tax;
+
+           
+            document.getElementById("subtotal").textContent =
+                `₱${subtotal.toFixed(2)}`;
+
+            document.getElementById("tax").textContent =
+                `₱${tax.toFixed(2)}`;
+
+            document.getElementById("total").textContent =
+                `₱${total.toFixed(2)}`;
+
+          
+            receipt.style.display = "block";
+        }
+    </script>
+
+</body>
+</html>
